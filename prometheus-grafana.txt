@@ -1,0 +1,102 @@
+Third party monitoring tools:
+-----------------------------
+1. Prometheus and grafana
+
+2. Splunk
+
+3. Datadog
+
+4. Newrelic (application monitoring)
+
+5. Nagios
+
+6. ELK 
+
+
+What is prometheus?
+
+Prometheus is an open source monitoring solution written in Go that collects metrics data and stores that data in a time series database. 
+
+It was originally built by SoundCloud in 2012 and became part of the Cloud Native Computing Foundation (CNCF) in 2016. 
+
+It uses PromQL, a powerful query language for querying your time series data.
+
+
+How does Prometheus work?
+
+Prometheus scrapes metrics data from HTTP endpoints and then pushes that data into a database that uses a multidimensional model. 
+
+Data collection and retrieval: 
+
+Prometheus follows a pull-based model, where it periodically scrapes data from the targets (applications, services or infrastructure components) that are instrumented with its client libraries. 
+
+The targets expose metrics and endpoints, allowing Prometheus to gather relevant information.
+
+Data storage: The collected metrics are stored in a time-series database, providing a historical record of system performance over time.
+
+Service discovery: Prometheus utilizes discovery mechanisms to ensure that new instances are automatically detected and monitored without manual intervention.
+
+
+
+what is grafana?
+
+Grafana is an open-source data visualization and monitoring platform that is commonly used to analyze and visualize time-series data from various data sources. 
+
+It allows users to create dashboards, charts, and graphs to monitor system performance, application metrics, and infrastructure health.
+
+
+
+vi prometheus-grafana.yml
+
+version: '3'
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+    ports:
+      - 9090:9090
+ 
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana:/etc/grafana/provisioning/datasources        
+
+
+
+vi prometheus.yml
+
+global:
+  scrape_interval: 60s # How frequently to scrape targets by default.
+  scrape_timeout: 10s # How long until a scrape request times out.
+  evaluation_interval: 60s # How frequently to evaluate rules.
+
+# A scrape configuration
+scrape_configs:
+  - job_name: prometheus
+    honor_labels: true
+    honor_timestamps: true
+    scheme: http
+    scrape_interval: 60s
+    scrape_timeout: 55s
+    metrics_path: /metrics
+    static_configs:
+    - targets: ['13.233.134.106:9090']
+	
+$ sudo chmod 666 /var/run/docker.sock
+	
+	
+	
+prom-queries:
+
+prometheus_http_requests_total{code=~"2.*", job="prometheus"}
+
+prometheus_http_requests_total{code=~"2.*|4.*"}
